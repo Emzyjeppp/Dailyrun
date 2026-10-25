@@ -14,7 +14,7 @@ export const StreakBanner: React.FC<StreakBannerProps> = ({
   isRunnerMode,
 }) => {
   return (
-    <div className="bg-strava-bg-card rounded-xl border border-strava-border p-5 shadow-sm space-y-5">
+    <div className="bg-strava-bg-card rounded-2xl border border-strava-border p-5 shadow-xs space-y-5">
       {/* Top Banner Status */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-strava-border">
         <div>
@@ -39,9 +39,9 @@ export const StreakBanner: React.FC<StreakBannerProps> = ({
               <span>Streak Hari Ini Terpenuhi</span>
             </div>
           ) : (
-            <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-strava-warm text-strava-warm-text border border-strava-warm-border text-xs font-bold">
-              <Clock className="w-4 h-4 text-strava-warm-text" />
-              <span>Belum Lari Hari Ini</span>
+            <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-strava-bg-subtle text-strava-muted-dark border border-strava-border text-xs font-bold">
+              <Clock className="w-4 h-4 text-strava-muted" />
+              <span>{isRunnerMode ? 'Belum Lari Hari Ini' : 'Belum Ada Sesi Hari Ini'}</span>
               {isRunnerMode && onOpenAddModal && (
                 <button
                   type="button"
@@ -78,7 +78,9 @@ export const StreakBanner: React.FC<StreakBannerProps> = ({
             <p className="text-[11px] text-strava-muted mt-1">
               {stats.ranToday
                 ? 'Target hari ini selesai'
-                : 'Selesaikan lari untuk menjaga streak'}
+                : isRunnerMode
+                ? 'Selesaikan lari untuk menjaga streak'
+                : 'Konsistensi streak harian'}
             </p>
           </div>
         </div>

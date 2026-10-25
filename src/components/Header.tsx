@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { AthleteProfile } from '../types/run';
-import { Plus, Flame, Share2, LogOut, Lock, Check } from 'lucide-react';
+import { Plus, Flame, Share2, LogOut, Check } from 'lucide-react';
 
 interface HeaderProps {
   athlete: AthleteProfile;
   isOwner: boolean;
   onOpenAddModal: () => void;
-  onOpenLoginModal: () => void;
   onLogoutOwner: () => void;
   onCopyShareLink: () => void;
   currentStreak: number;
@@ -16,7 +15,6 @@ export const Header: React.FC<HeaderProps> = ({
   athlete,
   isOwner,
   onOpenAddModal,
-  onOpenLoginModal,
   onLogoutOwner,
   onCopyShareLink,
   currentStreak,
@@ -75,20 +73,20 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Sisi Kanan: Streak + Tombol Aksi */}
           <div className="flex items-center space-x-2 sm:space-x-3">
-            {/* Indikator Streak */}
+            {/* Indikator Streak (Dilihat oleh Semua Orang) */}
             <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-strava-orange-subtle border border-strava-orange/30 text-strava-orange">
               <Flame className="w-4 h-4 fill-strava-orange text-strava-orange" />
               <span className="text-xs font-bold">{currentStreak} HARI</span>
             </div>
 
-            {/* JIKA PEMILIK (JEPRI): Tombol Bagikan Link + Catat Lari + Logout */}
-            {isOwner ? (
+            {/* JIKA PEMILIK: Tombol Bagikan Link + Catat Lari + Keluar */}
+            {isOwner && (
               <>
                 <button
                   type="button"
                   onClick={handleShareClick}
                   className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border border-strava-border bg-strava-bg-subtle hover:bg-strava-bg-card text-strava-dark text-xs font-bold transition-colors"
-                  title="Salin link POV publik untuk dibagikan ke orang lain"
+                  title="Salin link POV publik untuk dibagikan"
                 >
                   {copied ? (
                     <>
@@ -122,19 +120,6 @@ export const Header: React.FC<HeaderProps> = ({
                   <LogOut className="w-4 h-4" />
                 </button>
               </>
-            ) : (
-              /* JIKA ORANG ASING / PENGUNJUNG PUBLIK (POV ORANG LAIN):
-                 TIDAK ADA TOMBOL CATAT LARI.
-                 Hanya link kecil untuk akses pemilik jika yang membuka adalah Anda sendiri. */
-              <button
-                type="button"
-                onClick={onOpenLoginModal}
-                className="inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-strava-muted hover:text-strava-dark bg-strava-bg-subtle border border-strava-border transition-colors"
-                title="Buka akses pemilik"
-              >
-                <Lock className="w-3 h-3 text-strava-orange" />
-                <span className="hidden sm:inline">Akses Pemilik</span>
-              </button>
             )}
           </div>
         </div>

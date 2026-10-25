@@ -19,7 +19,7 @@ import { RunFormModal } from './components/RunFormModal';
 import { RunDetailModal } from './components/RunDetailModal';
 import { OwnerLoginModal } from './components/OwnerLoginModal';
 import { EmptyState } from './components/EmptyState';
-import { Plus, RefreshCw, Filter, Trash2, ShieldCheck } from 'lucide-react';
+import { Plus, RefreshCw, Filter, Trash2, ShieldCheck, Lock } from 'lucide-react';
 
 export function App() {
   const [runs, setRuns] = useState<RunActivity[]>([]);
@@ -38,17 +38,16 @@ export function App() {
         setIsLoading(true);
         await clearDemoRuns();
 
-        // Periksa apakah ini link yang dibagikan ke publik (?share=true)
+        // Cek apakah halaman dibuka dengan parameter share publik (?share=true)
         const urlParams = new URLSearchParams(window.location.search);
         const isSharedLink = urlParams.get('share') === 'true' || window.location.hash === '#share';
 
         if (isSharedLink) {
-          // Jika dibuka dari link share publik, kunci ke mode orang asing (read-only)
+          // Link publik untuk orang luar: paksa mode baca (bukan pemilik)
           setIsOwner(false);
         } else {
-          // Jika di browser Anda sendiri, baca status login pemilik (atau setel aktif secara bawaan)
+          // Jika dibuka di browser lokal Anda sendiri tanpa ?share=true
           const loggedIn = isOwnerLoggedIn();
-          // Jika belum diset di browser pemilik pertama kali, defaultkan aktif untuk kemudahan Anda
           if (localStorage.getItem('dailyrun_owner_initialized') === null) {
             setOwnerLoggedIn(true);
             localStorage.setItem('dailyrun_owner_initialized', 'true');
@@ -133,7 +132,7 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-strava-bg flex flex-col text-strava-dark">
-      {/* Header Utama: Menyesuaikan apakah Pemilik atau Orang Asing (POV Publik) */}
+      {/* Header Utama: Bersih untuk Publik (tanpa tombol Akses Pemilik di header) */}
       <Header
         athlete={athlete}
         isOwner={isOwner}
@@ -141,7 +140,6 @@ export function App() {
           setEditingRun(null);
           setIsFormModalOpen(true);
         }}
-        onOpenLoginModal={() => setIsLoginModalOpen(true)}
         onLogoutOwner={handleLogoutOwner}
         onCopyShareLink={handleCopyShareLink}
         currentStreak={stats.currentStreak}
@@ -166,7 +164,7 @@ export function App() {
               isRunnerMode={isOwner}
             />
 
-            {/* Bar Filter & Aksi */}
+            {/* Bar Judul & Aksi (Hanya tampil jika ada aksi atau lari) */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
               <div className="flex items-center space-x-2">
                 <h3 className="text-base font-bold text-strava-dark">
@@ -177,18 +175,20 @@ export function App() {
                 </span>
               </div>
 
+              {/* Kontrol Pencarian & Tombol Pemilik */}
               <div className="flex flex-wrap items-center gap-2">
-                {/* Search input */}
-                <div className="relative">
-                  <Filter className="w-3.5 h-3.5 text-strava-muted absolute left-2.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Cari sesi atau tanggal..."
-                    className="pl-8 pr-3 py-1.5 text-xs rounded-lg border border-strava-border bg-strava-bg-card text-strava-dark focus:outline-none focus:ring-1 focus:ring-strava-orange"
-                  />
-                </div>
+                {runs.length > 0 && (
+                  <div className="relative">
+                    <Filter className="w-3.5 h-3.5 text-strava-muted absolute left-2.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Cari sesi atau tanggal..."
+                      className="pl-8 pr-3 py-1.5 text-xs rounded-lg border border-strava-border bg-strava-bg-card text-strava-dark focus:outline-none focus:ring-1 focus:ring-strava-orange"
+                    />
+                  </div>
+                )}
 
                 {isOwner && runs.length > 0 && (
                   <button
@@ -202,7 +202,7 @@ export function App() {
                   </button>
                 )}
 
-                {/* Tombol Tambah Lari (Hanya Pemilik) */}
+                {/* Tombol Tambah Lari HANYA UNTUK PEMILIK */}
                 {isOwner && (
                   <button
                     type="button"
@@ -219,7 +219,7 @@ export function App() {
               </div>
             </div>
 
-            {/* List atau Empty State */}
+            {/* List atau Empty State (Meneruskan status isOwner agar tombol tambah tidak muncul di publik) */}
             {runs.length === 0 ? (
               <EmptyState
                 onOpenAddModal={() => {
@@ -227,6 +227,7 @@ export function App() {
                   setIsFormModalOpen(true);
                 }}
                 athleteName={athlete.fullName}
+                isOwner={isOwner}
               />
             ) : filteredRuns.length === 0 ? (
               <div className="p-12 text-center bg-strava-bg-card rounded-xl border border-strava-border text-strava-muted">
@@ -276,6 +277,21 @@ export function App() {
             </span>
             <span>•</span>
             <span>ID Atlet: {athlete.id}</span>
+            {/* Tautan Halus Akses Pemilik HANYA di footer jika belum login pemilik */}
+            {!isOwner && (
+              <>
+                <span>•</span>
+                <button
+                  type="button"
+                  onClick={() => setIsLoginModalOpen(true)}
+                  className="hover:text-strava-orange transition-colors flex items-center space-x-1 text-strava-muted"
+                  title="Masuk sebagai pemilik"
+                >
+                  <Lock className="w-3 h-3" />
+                  <span>Akses Pemilik</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
       </footer>
@@ -293,14 +309,14 @@ export function App() {
         />
       )}
 
-      {/* Modal Detail / Inspeksi Tangkapan Layar (Bisa Dibuka Siapa Saja saat Klik Screenshot) */}
+      {/* Modal Detail / Inspeksi Tangkapan Layar */}
       <RunDetailModal
         run={selectedRunForDetail}
         athlete={athlete}
         onClose={() => setSelectedRunForDetail(null)}
       />
 
-      {/* Modal Login Akses Pemilik (Jika Anda Membuka dari Perangkat Baru atau Setelah Logout) */}
+      {/* Modal Login Akses Pemilik */}
       <OwnerLoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
