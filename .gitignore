@@ -1,0 +1,38 @@
+# Node dependencies & Build
+node_modules
+dist
+dist-ssr
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# AI rules & planning documents
+.agent/
+.cursor/
+agents/
+.clinerules
+.cursorrules
+.windsurfrules
+CLAUDE.md
+AGENTS.md
+prd.md
+techstack.md
+design.md
+rules.md
+REFERENCES.md
+dashboard___strava.pdf
+.github/copilot-instructions.md
+
+# Editor & OS files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+Thumbs.db
+*.sw?
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
